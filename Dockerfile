@@ -3,9 +3,12 @@
 # Based on ubuntu
 ################################################################################
 
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 MAINTAINER Lloyd Watkin <lloyd@evilprofessor.co.uk>
+
+COPY ./prosody.deb /tmp/prosody.deb
+COPY ./entrypoint.sh /entrypoint.sh
 
 # Install dependencies
 RUN apt-get update \
@@ -25,16 +28,14 @@ RUN apt-get update \
         lua-zlib \
         lua5.1 \
         openssl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && dpkg -i /tmp/prosody.deb \
+    && sed -i '1s/^/daemonize = false;\n/' /etc/prosody/prosody.cfg.lua \
+    && perl -i -pe 'BEGIN{undef $/;} s/^log = {.*?^}$/log = {\n    {levels = {min = "info"}, to = "console"};\n}/smg' \
+          /etc/prosody/prosody.cfg.lua \
 
 # Install and configure prosody
-COPY ./prosody.deb /tmp/prosody.deb
-RUN dpkg -i /tmp/prosody.deb \
-    && sed -i '1s/^/daemonize = false;\n/' /etc/prosody/prosody.cfg.lua \
-    && perl -i -pe 'BEGIN{undef $/;} s/^log = {.*?^}$/log = {\n    {levels = {min = "info"}, to = "console"};\n}/smg' /etc/prosody/prosody.cfg.lua
-
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod 755 /entrypoint.sh
+    && chmod 755 /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 EXPOSE 80 443 5222 5269 5347 5280 5281
