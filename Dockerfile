@@ -7,7 +7,6 @@ FROM ubuntu:16.04
 
 MAINTAINER Lloyd Watkin <lloyd@evilprofessor.co.uk>
 
-COPY ./prosody.deb /tmp/prosody.deb
 COPY ./entrypoint.sh /entrypoint.sh
 
 # Install dependencies
@@ -28,6 +27,8 @@ RUN apt-get update \
         lua-zlib \
         lua5.1 \
         openssl \
+        prosody \
+        prosody-modules \
     && rm -rf /var/lib/apt/lists/* \
     && dpkg -i /tmp/prosody.deb \
     && sed -i '1s/^/daemonize = false;\n/' /etc/prosody/prosody.cfg.lua \
