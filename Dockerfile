@@ -27,6 +27,7 @@ RUN apt-get update \
         openssl \
         prosody \
         prosody-modules \
+        ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && sed -i '1s/^/daemonize = false;\n/' /etc/prosody/prosody.cfg.lua \
     && perl -i -pe 'BEGIN{undef $/;} s/^log = \{.*?^\}$/log = {\n    {levels = {min = "info"}, to = "console"};\n}/smg' \
